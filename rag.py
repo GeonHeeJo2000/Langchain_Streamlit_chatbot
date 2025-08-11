@@ -24,7 +24,7 @@ os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 def initialize_components():
     vectorstore = Chroma(
             persist_directory="./data/namuwiki_db",
-            embedding_function=HuggingFaceEmbeddings(model_name="jhgan/ko-sroberta-multitask", model_kwargs={'device': 'cuda'})
+            embedding_function=HuggingFaceEmbeddings(model_name="jhgan/ko-sroberta-multitask", model_kwargs={'device': 'cpu'})
         )
 
     retriever = vectorstore.as_retriever()
@@ -80,4 +80,5 @@ if prompt_message := st.chat_input("Your question"):
             response = conversational_rag_chain.invoke({"input": prompt_message}, config)
             answer = response['answer']
             st.write(answer)
+
 
