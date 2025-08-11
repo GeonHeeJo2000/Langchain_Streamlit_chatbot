@@ -1,0 +1,8 @@
+streamlit
+langchain
+langchain-chroma
+langchain-huggingface
+langchain-core
+langchain-openai
+langchain-community
+pysqulite3-binary
