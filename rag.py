@@ -1,4 +1,6 @@
 import os
+import pysqlite3
+sys.modules["sqlite3"] = pysqlite3
 
 import streamlit as st
 from langchain_chroma import Chroma
@@ -13,10 +15,6 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain_community.chat_message_histories.streamlit import StreamlitChatMessageHistory
-
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 #오픈AI API 키 설정
 os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
