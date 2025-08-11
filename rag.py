@@ -1,4 +1,5 @@
 import os
+import sys
 import pysqlite3
 sys.modules["sqlite3"] = pysqlite3
 
@@ -79,3 +80,4 @@ if prompt_message := st.chat_input("Your question"):
             response = conversational_rag_chain.invoke({"input": prompt_message}, config)
             answer = response['answer']
             st.write(answer)
+
