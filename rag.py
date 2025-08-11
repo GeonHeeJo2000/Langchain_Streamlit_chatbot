@@ -6,6 +6,7 @@ sys.modules["sqlite3"] = pysqlite3
 import streamlit as st
 from langchain_chroma import Chroma
 from langchain.schema import AIMessage
+from huggingface_hub import snapshot_download
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -17,14 +18,29 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain_community.chat_message_histories.streamlit import StreamlitChatMessageHistory
 
-#오픈AI API 키 설정
+오픈AI API 키 설정
 os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 
 @st.cache_resource
 def initialize_components():
+    # 1. DB 로드 함수를 실행하여 DB 파일이 저장된 경로를 가져옵니다.
+    db_path = "./data/namuwiki_db_hf"
+    if not os.path.exists(db_path):
+        snapshot_download(
+            repo_id="SoccerData/namuwiki_db",
+            repo_type="dataset",
+            local_dir=db_path,
+            local_dir_use_symlinks=False
+        )
+
+    # 2. 임베딩 함수를 정의합니다.
+    embedding_function = HuggingFaceEmbeddings(
+        model_name="jhgan/ko-sroberta-multitask",
+        model_kwargs={'device': 'cpu'}
+    )
     vectorstore = Chroma(
-            persist_directory="./data/namuwiki_db",
-            embedding_function=HuggingFaceEmbeddings(model_name="jhgan/ko-sroberta-multitask", model_kwargs={'device': 'cpu'})
+            persist_directory=db_path,
+            embedding_function=embedding_function
         )
 
     retriever = vectorstore.as_retriever()
@@ -57,8 +73,12 @@ def initialize_components():
     rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
     return rag_chain
 
-st.header("축구 Q&A 챗봇")
-rag_chain = initialize_components()
+st.header("축구 Q&A 챗봇 ⚽")
+
+# st.spinner를 사용해 전체 초기화 과정 중에 메시지를 표시
+with st.spinner("챗봇을 초기화하는 중입니다. DB 다운로드 및 모델 로딩..."):
+    rag_chain = initialize_components()
+
 chat_history = StreamlitChatMessageHistory(key="chat_messages")
 conversational_rag_chain = RunnableWithMessageHistory(
     rag_chain,
@@ -79,6 +99,15 @@ if prompt_message := st.chat_input("Your question"):
             config = {"configurable": {"session_id": "any"}}
             response = conversational_rag_chain.invoke({"input": prompt_message}, config)
             answer = response['answer']
+            context_docs = response['context']
+
             st.write(answer)
 
-
+            # # 3. st.expander를 사용해 참조한 문서(RAG 검색 결과)를 깔끔하게 표시합니다.
+            # if context_docs: # 검색된 문서가 있을 경우에만 표시
+            #     with st.expander("참조한 문서 보기 (RAG 검색 결과)"):
+            #         for doc in context_docs:
+            #             st.markdown(f"**출처: `{doc.metadata.get('source', '정보 없음')}`**")
+            #             st.markdown(doc.page_content)
+            #             st.divider()
+            
