@@ -18,7 +18,7 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain_community.chat_message_histories.streamlit import StreamlitChatMessageHistory
 
-오픈AI API 키 설정
+#오픈AI API 키 설정
 os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 
 @st.cache_resource
@@ -110,4 +110,5 @@ if prompt_message := st.chat_input("Your question"):
             #             st.markdown(f"**출처: `{doc.metadata.get('source', '정보 없음')}`**")
             #             st.markdown(doc.page_content)
             #             st.divider()
+
             
