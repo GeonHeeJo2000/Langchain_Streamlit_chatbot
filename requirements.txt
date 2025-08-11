@@ -1,8 +1,8 @@
 streamlit
 langchain
-langchain-chroma
-langchain-huggingface
-langchain-core
-langchain-openai
 langchain-community
-pysqulite3-binary
+langchain-openai
+langchain-core
+langchain-chroma
+pysqlite3-binary
+langchain-huggingface
