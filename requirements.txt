@@ -7,3 +7,4 @@ langchain-chroma
 pysqlite3-binary
 langchain-huggingface
 huggingface-hub
+sentence-transformers
